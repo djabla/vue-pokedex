@@ -1,0 +1,32 @@
+{
+  "name": "vue-prac",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": "^20.19.0 || >=22.12.0"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "start": "nodemon --watch server --exec node --experimental-modules server/server.js"
+  },
+  "dependencies": {
+    "@tailwindcss/vite": "^4.1.13",
+    "body-parser": "^2.2.0",
+    "cors": "^2.8.5",
+    "daisyui": "^5.1.7",
+    "express": "^5.1.0",
+    "mysql": "^2.18.1",
+    "nodemon": "^3.1.10",
+    "tailwindcss": "^4.1.13",
+    "vue": "^3.5.18"
+  },
+  "license": "ISC",
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^6.0.1",
+    "vite": "^7.1.4",
+    "vite-plugin-vue-devtools": "^8.0.0"
+  }
+}
