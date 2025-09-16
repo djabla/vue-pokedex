@@ -1,5 +1,5 @@
 import axios from "axios";
-import { createClient } from "redis";
+// import { createClient } from "redis";
 
 export default class PokeApi {
     redisClient;
@@ -8,11 +8,11 @@ export default class PokeApi {
         // this.init();
     }
 
-    async init() {
-        this.redisClient = createClient();
-        this.redisClient.on('error', err => console.log('Redis Client Error', err));
-        await this.redisClient.connect();
-    }
+    // async init() {
+    //     this.redisClient = createClient();
+    //     this.redisClient.on('error', err => console.log('Redis Client Error', err));
+    //     await this.redisClient.connect();
+    // }
 
     /**
      * Fetches data from the given URL and returns the response data.

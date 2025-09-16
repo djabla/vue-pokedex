@@ -8,3 +8,10 @@
   import pokelist from './components/pokelistpage.vue';
 </script>
 
+<style>
+@import "tailwindcss";
+
+@plugin "daisyui" {
+    themes: light --default;
+}
+</style>

@@ -1,10 +1,5 @@
 <template>
     <div>
-        <h1>Hello</h1>
-        <button class="btn btn-primary" v-on:click="getCache();">
-            Get Cache
-        </button>
-
         <div v-if="pokeData" class="pokemon-list">
             <div v-for="pokemon in pokeData" :key="pokemon.name" class="card card-border bg-base-40 w-96 shadow-lg">
                 <figure style="background-color: beige;">
@@ -126,11 +121,6 @@ export default {
 </script>
 
 <style>
-@import "tailwindcss";
-
-@plugin "daisyui" {
-    themes: light --default;
-}
 
 .pokemon-list {
     display: flex;
