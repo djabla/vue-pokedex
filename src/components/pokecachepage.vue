@@ -1,5 +1,5 @@
 <template>
-    <div class="navbar bg-base-200 shadow-sm">
+    <div class="navbar bg-base-200 shadow-sm sticky top-0 z-100">
         <div class="flex-1">
             <button class="btn btn-square btn-ghost">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
@@ -67,8 +67,7 @@
 
                     <div class="modal-action">
                         <form method="dialog">
-                            <!-- if there is a button in form, it will close the modal -->
-                            <button class="btn">Close</button>
+                            <button class="btn" v-on:click="clearCache()">Close</button>
                         </form>
                     </div>
                 </div>
@@ -85,15 +84,15 @@
 </template>
 
 <script>
-import { getCacheList } from '@/data/pokeApi';
-import { getIndividualPokemon, getPokemonByName } from '@/data/pokeApi';
+import PokeApi from '@/data/pokeApi';
 import { capitalizeFirstLetter } from '@/utils/stringFormatters';
+
+const MODAL_ANIMATION_DURATION = 300;
 
 export default {
     name: "pokecache",
     data: function () {
         return {
-            cacheList: [],
             pokeList: []
         }
     },
@@ -101,9 +100,9 @@ export default {
         getCache() {
             const self = this;
             let pokeData = [];
-            getCacheList().then(data => {
+            PokeApi.getCacheList().then(data => {
                 data.forEach(pokemon => {
-                    getPokemonByName(pokemon.name.toLowerCase()).then(data => {
+                    PokeApi.getPokemonByName(pokemon.name.toLowerCase()).then(data => {
                         let temp = {};
                         temp.name = capitalizeFirstLetter(data.name);
                         temp.img = data.sprites.front_default;
@@ -111,18 +110,21 @@ export default {
                         self.pokeList.push(temp);
                     });
                 })
-            }).then(() => {
-                self.cacheList = pokeData
             })
         },
         getIndividualDetail(name) {
             const self = this;
             let pokeData = null;
-            getPokemonByName(name.toLowerCase()).then(data => {
+            PokeApi.getPokemonByName(name.toLowerCase()).then(data => {
                 console.log(data);
                 pokeData = data;
             })
             return pokeData
+        },
+        clearCache() {
+            setTimeout(() => {
+                this.pokeList = [];
+            }, MODAL_ANIMATION_DURATION);
         }
 
     },

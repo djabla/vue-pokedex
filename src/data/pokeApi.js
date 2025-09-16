@@ -1,47 +1,42 @@
-export async function getPokeList(offset = 0) {
-    let url = `https://pokeapi.co/api/v2/pokemon?limit=50${offset ? `&offset=${offset}` : ''}`;
-    return await fetch(url)
-        .then(response => response.json())
-        .catch(err => console.log(err));
-}
+import axios from "axios";
 
-export async function getIndividualPokemon(url) {
-    return await fetch(url)
-        .then(response => response.json())
-        .catch(err => console.log(err));
-}
+export default class PokeApi {
+    constructor() {}
 
-export async function getPokemonByName(name) {
-    let url = `https://pokeapi.co/api/v2/pokemon/${name}`;
-    return await fetch(url)
-        .then(response => response.json())
-        .catch(err => console.log(err));
-}
-
-export async function getCacheList() {
-    try {
-        const response = await fetch("http://localhost:3000/api/myPokemons");
-        if (!response.ok) {
-            throw new Error("Network response was not ok " + response.statusText);
+    static async fetchURL(url) {
+        try {
+            const response = await axios.get(url);
+            return response.data;
+        } catch (error) {
+            console.log(error);
         }
-        const data = await response.json();
-        console.log("Pokemons:", data);
-        return data;
-    } catch (error) {
-        console.error("Fetch error:", error);
-        return null;
     }
-}
 
-export async function storeToCache(data) {
-    return await fetch('http://localhost:3000/api/myPokemons', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(data)
-    })
-        .then(response => response.json())
-        .then(data => console.log("inserted data:", data))
-        .catch(err => console.log(err));
+    static async getPokeList(offset = 0) {
+        return await this.fetchURL(`https://pokeapi.co/api/v2/pokemon?limit=50${offset ? `&offset=${offset}` : ''}`);
+    }
+    
+    static async getIndividualPokemon(url) {
+        return await this.fetchURL(url);
+    }
+
+    static async getPokemonByName(name) {
+        return await this.fetchURL(`https://pokeapi.co/api/v2/pokemon/${name}`);
+    }
+
+    static async getCacheList() {
+        return await this.fetchURL('http://localhost:3000/api/myPokemons');
+    }
+
+    static async storeToCache(data) {
+        return await fetch('http://localhost:3000/api/myPokemons', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+            .then(response => response.json())
+            .catch(error => console.log(error));
+    }
 }

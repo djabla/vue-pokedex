@@ -29,7 +29,7 @@
 </template>
 
 <script>
-import { getCacheList, getIndividualPokemon, getPokeList, storeToCache } from '@/data/pokeApi';
+import PokeApi from '@/data/pokeApi';
 import { capitalizeFirstLetter } from '@/utils/stringFormatters';
 
 export default {
@@ -51,7 +51,7 @@ export default {
         getPokemonBasicData(res) {
             const self = this;
             res?.forEach(pokemon => {
-                getIndividualPokemon(pokemon.url).then(data => {
+                PokeApi.getIndividualPokemon(pokemon.url).then(data => {
                     self.pokeMetaData.push(data);
                     let temp = {};
                     temp.name = capitalizeFirstLetter(data.name);
@@ -64,7 +64,7 @@ export default {
         loadMorePokemonOnScroll() {
             const self = this;
             self.offset += 50;
-            getPokeList(self.offset).then(data => {
+            PokeApi.getPokeList(self.offset).then(data => {
                 self.getPokemonBasicData(data.results);
             })
         },
@@ -75,10 +75,10 @@ export default {
             temp.pokeId = pokemon.name;
             temp._id = this.cache.length + 1;
 
-            storeToCache(temp)
+            PokeApi.storeToCache(temp)
         },
         getCache() {
-            getCacheList().then(data => {
+            PokeApi.getCacheList().then(data => {
                 console.log(data);
             })
         }
@@ -86,7 +86,7 @@ export default {
     mounted() {
         const self = this;
 
-        getPokeList().then(data => {
+        PokeApi.getPokeList().then(data => {
             self.getPokemonBasicData(data.results);
         });
 
