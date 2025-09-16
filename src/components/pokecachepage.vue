@@ -97,6 +97,11 @@ export default {
         }
     },
     methods: {
+        /**
+         * Retrieves the list of pokemon that are currently in the cache.
+         * This function uses the PokeAPI to fetch the list of pokemon in the cache.
+         * It then logs the list to the console.
+         */
         getCache() {
             const self = this;
             let pokeData = [];
@@ -112,6 +117,11 @@ export default {
                 })
             })
         },
+        /**
+         * Retrieves the individual details of a pokemon from the PokeAPI.
+         * @param {string} name - The name of the pokemon to fetch.
+         * @returns {Promise<object|null>} - The response data from the PokeAPI, or null if no data is found.
+         */
         getIndividualDetail(name) {
             const self = this;
             let pokeData = null;
@@ -121,6 +131,9 @@ export default {
             })
             return pokeData
         },
+        /**
+         * Clears the cache by setting the pokeList to an empty array.
+         */
         clearCache() {
             setTimeout(() => {
                 this.pokeList = [];

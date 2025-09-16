@@ -14,7 +14,6 @@
                     <h2 class="card-title">
                         {{ pokemon.name }}
                     </h2>
-                    <!-- <p>A card component has a figure, a body part, and inside body there are title and actions parts</p> -->
                     <div class="card-actions justify-end">
                         <div v-bind:class="`type-${type.toLowerCase()}`" class="badge badge-outline"
                             v-for="type in pokemon.types" :key="type">{{ type }}</div>
@@ -48,6 +47,12 @@ export default {
         addCount: function () {
             this.count++;
         },
+        /**
+         * Get the basic information of a pokemon such as name, img and types.
+         * This function takes a list of pokemon and fetches the individual data of each pokemon.
+         * It then formats the data into a structure that can be easily used by the frontend.
+         * @param {Array} res - A list of pokemon objects.
+         */
         getPokemonBasicData(res) {
             const self = this;
             res?.forEach(pokemon => {
@@ -61,6 +66,11 @@ export default {
                 });
             });
         },
+        /**
+         * Loads more pokemon data when the user scrolls to the bottom of the page.
+         * This function increments the offset by 50 and then fetches the next 50 pokemon from the PokeAPI.
+         * It then formats the data into a structure that can be easily used by the frontend.
+         */
         loadMorePokemonOnScroll() {
             const self = this;
             self.offset += 50;
@@ -68,6 +78,12 @@ export default {
                 self.getPokemonBasicData(data.results);
             })
         },
+        /**
+         * Adds a pokemon to the cache.
+         * This function takes a pokemon object and formats its data into a structure that can be easily used by the PokeAPI.
+         * It then stores the data in the cache.
+         * @param {Object} pokemon - A pokemon object.
+         */
         addToCache(pokemon) {
             let temp = {};
             temp.name = pokemon.name;
@@ -77,6 +93,11 @@ export default {
 
             PokeApi.storeToCache(temp)
         },
+        /**
+         * Retrieves the list of pokemon that are currently in the cache.
+         * This function uses the PokeAPI to fetch the list of pokemon in the cache.
+         * It then logs the list to the console.
+         */
         getCache() {
             PokeApi.getCacheList().then(data => {
                 console.log(data);
