@@ -1,19 +1,10 @@
 import axios from "axios";
-// import { createClient } from "redis";
 
 export default class PokeApi {
     redisClient;
 
-    constructor() {
-        // this.init();
-    }
-
-    // async init() {
-    //     this.redisClient = createClient();
-    //     this.redisClient.on('error', err => console.log('Redis Client Error', err));
-    //     await this.redisClient.connect();
-    // }
-
+    constructor() {}
+    
     /**
      * Fetches data from the given URL and returns the response data.
      * If the request fails, logs the error to the console.
@@ -73,14 +64,35 @@ export default class PokeApi {
      * @returns {Promise<object>} - The response data from the server.
      */
     static async storeToCache(data) {
-        return await fetch('http://localhost:3000/api/myPokemons', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(data)
-        })
-            .then(response => response.json())
-            .catch(error => console.log(error));
+        try {
+            const res = await axios.post('http://localhost:3000/api/myPokemons', data);
+            if (res.status === 201) {
+                return res.data;
+            } else {
+                throw new Error(`Failed to store: ${res.status}`);
+            }
+        } catch (err) {
+            console.error(err);
+            throw err;
+        }
+    }
+
+    /**
+     * Removes a Pokemon from the local cache by ID.
+     * @param {string} id - The ID of the Pokemon to remove from the cache.
+     * @returns {Promise<object>} - The response data from the server.
+     */
+    static async removePokemonFromCache(id) {
+        try {
+            const res = await axios.delete(`http://localhost:3000/api/myPokemons/${id}`);
+            if (res.status === 200) {
+                return res.data;
+            } else {
+                throw new Error(`Failed to delete: ${res.status}`);
+            }
+        } catch (err) {
+            console.error(err);
+            throw err;
+        }
     }
 }

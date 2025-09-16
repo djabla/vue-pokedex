@@ -13,8 +13,11 @@
                         <div v-bind:class="`type-${type.toLowerCase()}`" class="badge badge-outline"
                             v-for="type in pokemon.types" :key="type">{{ type }}</div>
                     </div>
-                    <button class="btn btn-primary btn-sm mt-2 place-self-center" style="max-width: max-content;" v-on:click="addToCache(pokemon)">
-                        Add To Cache
+                    <button v-if="!pokemon.isCaught" class="btn btn-primary btn-sm mt-2 place-self-center" style="max-width: max-content;" v-on:click="addToCache(pokemon)">
+                        Catch
+                    </button>
+                    <button v-else class="btn btn-secondary btn-sm mt-2 place-self-center" style="max-width: max-content;">
+                        Caught
                     </button>
                 </div>
             </div>
@@ -57,6 +60,7 @@ export default {
                     temp.name = capitalizeFirstLetter(data.name);
                     temp.img = data.sprites.front_default;
                     temp.types = data.types.map(type => capitalizeFirstLetter(type.type.name));
+                    temp.isCaught = self.isInCache(temp.name);
                     self.pokeData.push(temp);
                 });
             });
@@ -80,13 +84,23 @@ export default {
          * @param {Object} pokemon - A pokemon object.
          */
         addToCache(pokemon) {
+            const self = this;
             let temp = {};
             temp.name = pokemon.name;
             temp.img = pokemon.img;
             temp.pokeId = pokemon.name;
-            temp._id = this.cache.length + 1;
-
-            PokeApi.storeToCache(temp)
+            
+            if (this.isInCache(pokemon.name)) {
+                return;
+            }
+            
+            PokeApi.storeToCache(temp).then(data => {
+                pokemon.isCaught = true;
+                self.getCache();
+            })
+        },
+        isInCache(pokemonName) {
+            return this.cache.findIndex(p => p.name === pokemonName) !== -1;
         },
         /**
          * Retrieves the list of pokemon that are currently in the cache.
@@ -94,8 +108,31 @@ export default {
          * It then logs the list to the console.
          */
         getCache() {
+            this.cache = [];
+            const self = this;
             PokeApi.getCacheList().then(data => {
-                console.log(data);
+                data.forEach(pokemon => {
+                    self.cache.push(pokemon);
+                })
+            })
+        },
+        /**
+         * Updates the cache with the latest data from the PokeAPI.
+         * This function fetches the list of pokemon in the cache and then updates the cache.
+         * It then updates the isCaught property of the pokemon data with the latest data from the cache.
+         */
+        updateCache() {
+            this.cache = [];
+            const self = this;
+            PokeApi.getCacheList().then(data => {
+                data.forEach(pokemon => {
+                    self.cache.push(pokemon);
+                    self.getPokeData().map(p => {
+                        if (p.name === capitalizeFirstLetter(pokemon.name)) {
+                            p.isCaught = true;
+                        }
+                    });
+                })
             })
         }
     },
@@ -117,6 +154,10 @@ export default {
             }
         };
     },
+    beforeMount() {
+        this.getCache();
+    },
+    
 }
 </script>
 

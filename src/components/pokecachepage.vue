@@ -11,11 +11,11 @@
         </div>
         <div class="flex gap-2">
             <input type="text" placeholder="Search" class="input input-bordered w-24 md:w-auto" />
-            <button class="btn" onclick="my_modal_1.showModal()" v-on:click="getCache()">open modal</button>
+            <button class="btn" onclick="my_modal_1.showModal()" v-on:click="getCache()">My Pokemons</button>
             <dialog id="my_modal_1" class="modal">
                 <div class="modal-box">
-                    <h3 class="font-bold text-lg">My List</h3>
-                    <div class="overflow-x-auto" style="max-height: 70vh;">
+                    <h3 class="font-bold text-lg mb-4">My List</h3>
+                    <div class="overflow-x-auto" style="height: 65vh;">
                         <table class="table table-xs table-pin-rows">
                             <!-- head -->
                             <thead>
@@ -56,7 +56,7 @@
                                             v-for="type in pokemon.types" :key="type">{{ type }}</div>
                                     </td>
                                     <th>
-                                        <button class="btn btn-warning btn-xs">Remove</button>
+                                        <button class="btn btn-warning btn-xs" v-on:click="removeFromCache(pokemon.id)">Remove</button>
                                     </th>
                                 </tr>
                             </tbody>
@@ -72,13 +72,6 @@
                     </div>
                 </div>
             </dialog>
-            <button v-on:click="getCache()" class="btn btn-square">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5"
-                    stroke="currentColor" class="size-[1.2em]">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
-                </svg>
-            </button>
         </div>
     </div>
 </template>
@@ -104,11 +97,12 @@ export default {
          */
         getCache() {
             const self = this;
-            let pokeData = [];
             PokeApi.getCacheList().then(data => {
                 data.forEach(pokemon => {
+                    const id = pokemon.id;
                     PokeApi.getPokemonByName(pokemon.name.toLowerCase()).then(data => {
                         let temp = {};
+                        temp.id = id;
                         temp.name = capitalizeFirstLetter(data.name);
                         temp.img = data.sprites.front_default;
                         temp.types = data.types.map(type => capitalizeFirstLetter(type.type.name));
@@ -138,11 +132,25 @@ export default {
             setTimeout(() => {
                 this.pokeList = [];
             }, MODAL_ANIMATION_DURATION);
+        },
+        /**
+         * Removes a pokemon from the cache by its id.
+         * It calls PokeApi.removeFromCache to remove the pokemon from the local cache.
+         * @param {number} id - The id of the pokemon to remove from the cache.
+         */
+        removeFromCache(id) {
+            PokeApi.removePokemonFromCache(id)
+                .then(() => {
+                    this.pokeList = this.pokeList.filter(pokemon => pokemon.id !== id);
+                    console.log(`Removed pokemon with id ${id} from cache.`);
+                })
+                .catch(() => {
+                    console.warn(`Could not remove pokemon with id ${id}.`);
+                });
         }
-
     },
     mounted: function () {
-        this.getCache();
+        // this.getCache();
     }
 }
 </script>
