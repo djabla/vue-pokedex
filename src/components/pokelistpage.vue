@@ -19,8 +19,24 @@
                     <button v-else class="btn btn-secondary btn-sm mt-2 place-self-center" style="max-width: max-content;">
                         Caught
                     </button>
+                    <button class="btn btn-info btn-sm mt-2 place-self-center" style="max-width: max-content;" onclick="my_modal_2.showModal()" v-on:click="selectedPokemon = pokemon; console.log(selectedPokemon);">
+                        Details
+                    </button>
                 </div>
             </div>
+            <dialog id="my_modal_2" class="modal">
+                <div class="modal-box">
+                    <h3 class="font-bold text-lg mb-4">My List</h3>
+                    <div class="overflow-x-auto" style="height: 65vh;">
+                        <pokemonDetails v-if="selectedPokemon" :name="selectedPokemon.name.toLowerCase()"></pokemonDetails>
+                    </div>
+                    <div class="modal-action">
+                        <form method="dialog">
+                            <button class="btn" v-on:click="selectedPokemon = null">Close</button>
+                        </form>
+                    </div>
+                </div>
+            </dialog>
         </div>
     </div>
 </template>
@@ -28,9 +44,13 @@
 <script>
 import PokeApi from '@/data/pokeApi';
 import { capitalizeFirstLetter } from '@/utils/stringFormatters';
+import pokemondetailspage from './pokemondetailspage.vue';
 
 export default {
     name: "pokelist",
+    components: {
+        pokemonDetails: pokemondetailspage
+    },
     data: function () {
         return {
             count: 0,
@@ -39,6 +59,7 @@ export default {
             offset: 0,
             lastLoad: null,
             cache: [],
+            selectedPokemon: null
         }
     },
     methods: {
@@ -134,6 +155,9 @@ export default {
                     });
                 })
             })
+        },
+        openDetails(pokemonName) {
+            
         }
     },
     mounted() {
