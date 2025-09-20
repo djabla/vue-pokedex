@@ -1,8 +1,9 @@
 <template>
-    <div>
+    <div v-on:logged-in="getCache()" v-on:signed-out="cache = []; pokeData.forEach(p => p.isCaught = false);">
         <div v-if="pokeData" class="pokemon-list">
-            <div v-for="pokemon in pokeData" :key="pokemon.name" class="card card-border bg-base-40 w-96 shadow-lg">
-                <figure style="background-color: beige;">
+            <div v-for="pokemon in pokeData" :key="pokemon.name" class="card w-96" style="background: #e0e0e0; box-shadow: 15px 15px 30px #bebebe,
+             -15px -15px 30px #ffffff; border-radius: 30px;">
+                <figure class="mt-6">
                     <img style="height: 10em;" v-bind:src="pokemon.img" alt="Shoes" />
                 </figure>
                 <div class="card-body">
@@ -13,12 +14,14 @@
                         <div v-bind:class="`type-${type.toLowerCase()}`" class="badge badge-outline"
                             v-for="type in pokemon.types" :key="type">{{ type }}</div>
                     </div>
-                    <button v-if="!pokemon.isCaught" class="btn btn-primary btn-sm mt-2 place-self-center" style="max-width: max-content;" v-on:click="addToCache(pokemon)">
-                        Catch
-                    </button>
-                    <button v-else class="btn btn-secondary btn-sm mt-2 place-self-center" style="max-width: max-content;">
-                        Caught
-                    </button>
+                    <div class="place-self-center" style="max-width: max-content;" v-if="isLoggedIn()">
+                        <button v-if="!pokemon.isCaught" class="btn btn-primary btn-sm mt-2 place-self-center" style="max-width: max-content; min-width: 65.28px;" v-on:click="addToCache(pokemon)">
+                            Catch
+                        </button>
+                        <button v-else class="btn btn-secondary btn-sm mt-2 place-self-center" style="max-width: max-content;">
+                            Caught
+                        </button>
+                    </div>
                     <button class="btn btn-info btn-sm mt-2 place-self-center" style="max-width: max-content;" onclick="my_modal_2.showModal()" v-on:click="selectedPokemon = pokemon; console.log(selectedPokemon);">
                         Details
                     </button>
@@ -79,7 +82,7 @@ export default {
                     self.pokeMetaData.push(data);
                     let temp = {};
                     temp.name = capitalizeFirstLetter(data.name);
-                    temp.img = data.sprites.front_default;
+                    temp.img = data.sprites.other['official-artwork'].front_default;
                     temp.types = data.types.map(type => capitalizeFirstLetter(type.type.name));
                     temp.isCaught = self.isInCache(temp.name);
                     self.pokeData.push(temp);
@@ -131,8 +134,8 @@ export default {
         getCache() {
             this.cache = [];
             const self = this;
-            PokeApi.getCacheList().then(data => {
-                data.forEach(pokemon => {
+            PokeApi.getCacheList().then(res => {
+                res.data.forEach(pokemon => {
                     self.cache.push(pokemon);
                 })
             })
@@ -156,8 +159,8 @@ export default {
                 })
             })
         },
-        openDetails(pokemonName) {
-            
+        isLoggedIn() {
+            return !!localStorage.getItem("token");
         }
     },
     mounted() {
@@ -179,7 +182,9 @@ export default {
         };
     },
     beforeMount() {
-        this.getCache();
+        if (this.isLoggedIn()) {
+            this.getCache();
+        }
     },
     
 }

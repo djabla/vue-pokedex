@@ -11,8 +11,10 @@
         </div>
         <div class="flex gap-2">
             <input type="text" placeholder="Search" class="input input-bordered w-24 md:w-auto" />
-            <button class="btn" onclick="my_modal_1.showModal()" v-on:click="getCache()">My Pokemons</button>
-            <dialog id="my_modal_1" class="modal">
+            <button v-if="isLogged" class="btn" onclick="cache_modal.showModal()" v-on:click="getCache()">My Pokemons</button>
+            <button v-else class="btn" onclick="signin_modal.showModal()" v-on:click="signingIn = true">Sign In</button>
+            <button v-if="isLogged" class="btn" v-on:click="signOut()">Log Out</button>
+            <dialog id="cache_modal" class="modal">
                 <div class="modal-box">
                     <h3 class="font-bold text-lg mb-4">My List</h3>
                     <div class="overflow-x-auto" style="height: 65vh;">
@@ -72,6 +74,18 @@
                     </div>
                 </div>
             </dialog>
+
+            <dialog class="modal" id="signin_modal" v-if="signingIn">
+                <div class="modal-box">
+                    <AuthForm v-on:logged-in="isLogged = true; signingIn = false; getCache()" />
+
+                    <div class="modal-action">
+                        <form method="dialog">
+                            <button class="btn">Close</button>
+                        </form>
+                    </div>
+                </div>
+            </dialog>
         </div>
     </div>
 </template>
@@ -79,14 +93,20 @@
 <script>
 import PokeApi from '@/data/pokeApi';
 import { capitalizeFirstLetter } from '@/utils/stringFormatters';
+import AuthForm from './users/userlogin.vue';
 
 const MODAL_ANIMATION_DURATION = 300;
 
 export default {
     name: "pokecache",
+    components: {
+        AuthForm
+    },
     data: function () {
         return {
-            pokeList: []
+            pokeList: [],
+            isLogged: false,
+            signingIn: true
         }
     },
     methods: {
@@ -97,8 +117,8 @@ export default {
          */
         getCache() {
             const self = this;
-            PokeApi.getCacheList().then(data => {
-                data.forEach(pokemon => {
+            PokeApi.getCacheList().then(res => {
+                res.data.forEach(pokemon => {
                     const id = pokemon.id;
                     PokeApi.getPokemonByName(pokemon.name.toLowerCase()).then(data => {
                         let temp = {};
@@ -147,10 +167,22 @@ export default {
                 .catch(() => {
                     console.warn(`Could not remove pokemon with id ${id}.`);
                 });
+        },
+        isLoggedIn() {
+            return !!localStorage.getItem("token");
+        },
+        signOut() {
+            localStorage.removeItem("token");
+            this.isLogged = false;
+            this.pokeList = [];
+            this.signingIn = true;
+            this.$emit("signed-out"); // notify parent to clear pokemons
+            window.location.reload();
         }
     },
     mounted: function () {
-        // this.getCache();
+        this.isLogged = this.isLoggedIn();
+        this.signingIn = !this.isLogged;
     }
 }
 </script>

@@ -1,7 +1,9 @@
 import axios from "axios";
 
+const NODE_API_URL = 'http://localhost:3000/api';
+const POKE_API_URL = 'https://pokeapi.co/api/v2/pokemon';
+
 export default class PokeApi {
-    redisClient;
 
     constructor() {}
     
@@ -21,13 +23,52 @@ export default class PokeApi {
     }
 
     /**
+     * Creates a new user with the given username and password.
+     * If the username already exists, throws an error.
+     * @param {string} username - The username to create.
+     * @param {string} password - The password to create.
+     * @returns {Promise<object>} - The response data.
+     * @throws {Error} - If the username already exists.
+     */
+    static async signup(username, password) {
+        const isTaken = await this.checkUsernameExists(username);
+        if (isTaken.data) {
+            throw new Error("Username already taken");
+        }
+        return axios.post(`${NODE_API_URL}/signup`, { username, password });
+    }
+
+    /**
+     * Logs in a user with the given username and password.
+     * If the request is successful, stores the JWT in local storage.
+     * @param {string} username - The username to log in with.
+     * @param {string} password - The password to log in with.
+     * @returns {Promise<object>} - The response data from the Node API.
+     */
+    static async login(username, password) {
+        const res = await axios.post(`${NODE_API_URL}/login`, { username, password });
+        localStorage.setItem("token", res.data.token); // store JWT
+        return res.data;
+    }
+    
+    /**
+     * Checks if a username already exists in the database.
+     * @param {string} username - The username to check.
+     * @returns {Promise<object>} - The response data from the Node API.
+     * @property {boolean} data - True if the username exists, false otherwise.
+     */
+    static async checkUsernameExists(username) {
+        return axios.get(`${NODE_API_URL}/check-username`, { params: { username } });
+    }
+
+    /**
      * Fetches a list of Pokemon from the PokeAPI with the given offset.
      * The offset is used to paginate the results. If no offset is provided, the first 50 Pokemon are returned.
      * @param {number} [offset=0] - The offset to use when fetching the Pokemon list.
      * @returns {Promise<object>} - The response data from the PokeAPI.
      */
     static async getPokeList(offset = 0) {
-        return await this.fetchURL(`https://pokeapi.co/api/v2/pokemon?limit=50${offset ? `&offset=${offset}` : ''}`);
+        return await this.fetchURL(`${POKE_API_URL}?limit=50${offset ? `&offset=${offset}` : ''}`);
     }
     
     /**
@@ -47,7 +88,7 @@ export default class PokeApi {
      * @returns {Promise<object>} - The response data from the PokeAPI.
      */
     static async getPokemonByName(name) {
-        return await this.fetchURL(`https://pokeapi.co/api/v2/pokemon/${name}`);
+        return await this.fetchURL(`${POKE_API_URL}/${name}`);
     }
 
     /**
@@ -55,7 +96,10 @@ export default class PokeApi {
      * @returns {Promise<object[]>} - The list of Pokemon stored in the local cache.
      */
     static async getCacheList() {
-        return await this.fetchURL('http://localhost:3000/api/myPokemons');
+        const token = localStorage.getItem("token");
+        return axios.get(`${NODE_API_URL}/myPokemons`, {
+            headers: { Authorization: `Bearer ${token}` },
+        });
     }
 
     /**
@@ -64,17 +108,12 @@ export default class PokeApi {
      * @returns {Promise<object>} - The response data from the server.
      */
     static async storeToCache(data) {
-        try {
-            const res = await axios.post('http://localhost:3000/api/myPokemons', data);
-            if (res.status === 201) {
-                return res.data;
-            } else {
-                throw new Error(`Failed to store: ${res.status}`);
-            }
-        } catch (err) {
-            console.error(err);
-            throw err;
-        }
+        const token = localStorage.getItem("token");
+        return axios.post(
+            `${NODE_API_URL}/myPokemons`,
+            data,
+            { headers: { Authorization: `Bearer ${token}` } }
+        );
     }
 
     /**
@@ -83,16 +122,9 @@ export default class PokeApi {
      * @returns {Promise<object>} - The response data from the server.
      */
     static async removePokemonFromCache(id) {
-        try {
-            const res = await axios.delete(`http://localhost:3000/api/myPokemons/${id}`);
-            if (res.status === 200) {
-                return res.data;
-            } else {
-                throw new Error(`Failed to delete: ${res.status}`);
-            }
-        } catch (err) {
-            console.error(err);
-            throw err;
-        }
+        const token = localStorage.getItem("token");
+        return axios.delete(`${NODE_API_URL}/myPokemons/${id}`, {
+            headers: { Authorization: `Bearer ${token}` },
+        });
     }
 }

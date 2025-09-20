@@ -6,6 +6,7 @@
 <script setup>
   import pokecache from './components/pokecachepage.vue';
   import pokelist from './components/pokelistpage.vue';
+  import pokemondetailspage from './components/pokemondetailspage.vue';
 </script>
 
 <style>
