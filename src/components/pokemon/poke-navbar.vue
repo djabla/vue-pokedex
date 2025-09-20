@@ -11,6 +11,7 @@
         </div>
         <div class="flex gap-2">
             <input type="text" placeholder="Search" class="input input-bordered w-24 md:w-auto" />
+            <span v-if="isLogged">Hi {{ getUserName() }}</span>
             <button v-if="isLogged" class="btn" onclick="cache_modal.showModal()" v-on:click="getCache()">My Pokemons</button>
             <button v-else class="btn" onclick="signin_modal.showModal()" v-on:click="signingIn = true">Sign In</button>
             <button v-if="isLogged" class="btn" v-on:click="signOut()">Log Out</button>
@@ -77,7 +78,7 @@
 
             <dialog class="modal" id="signin_modal" v-if="signingIn">
                 <div class="modal-box">
-                    <AuthForm v-on:logged-in="isLogged = true; signingIn = false; getCache()" />
+                    <user_signin v-on:logged-in="isLogged = true; signingIn = false; getCache()" />
 
                     <div class="modal-action">
                         <form method="dialog">
@@ -93,14 +94,14 @@
 <script>
 import PokeApi from '@/data/pokeApi';
 import { capitalizeFirstLetter } from '@/utils/stringFormatters';
-import AuthForm from './users/userlogin.vue';
+import user_signin from '../users/user-signin.vue';
 
 const MODAL_ANIMATION_DURATION = 300;
 
 export default {
-    name: "pokecache",
+    name: "poke_navbar",
     components: {
-        AuthForm
+        user_signin
     },
     data: function () {
         return {
@@ -178,6 +179,9 @@ export default {
             this.signingIn = true;
             this.$emit("signed-out"); // notify parent to clear pokemons
             window.location.reload();
+        },
+        getUserName() {
+            return localStorage.getItem("username");
         }
     },
     mounted: function () {

@@ -20,7 +20,7 @@ import PokeApi from '@/data/pokeApi';
 let pokemonName = null;
 
 export default {
-    name: "pokemondetailspage",
+    name: "poke_details",
     data: function () {
         return {
             _name: null,

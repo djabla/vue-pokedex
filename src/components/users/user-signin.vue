@@ -27,7 +27,7 @@
 import PokeApi from "../../data/pokeApi";
 
 export default {
-    name: "AuthForm",
+    name: "user_signin",
     data() {
         return {
             username: "",
@@ -56,6 +56,7 @@ export default {
                 this.message = "Login successful!";
                 this.$emit("logged-in");
                 this.reloadApp();
+                this.setSessionUsername(this.username);
             } catch (err) {
                 this.message = err.response?.data?.error || "Login failed";
             }
@@ -103,6 +104,9 @@ export default {
             }
             this.error = "";
             return true;
+        },
+        setSessionUsername(username) {
+            localStorage.setItem("username", username);
         },
     },
 };

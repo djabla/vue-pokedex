@@ -47,12 +47,12 @@
 <script>
 import PokeApi from '@/data/pokeApi';
 import { capitalizeFirstLetter } from '@/utils/stringFormatters';
-import pokemondetailspage from './pokemondetailspage.vue';
+import poke_details from './poke-details.vue';
 
 export default {
-    name: "pokelist",
+    name: "poke_list",
     components: {
-        pokemonDetails: pokemondetailspage
+        pokemonDetails: poke_details
     },
     data: function () {
         return {
